@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Impostor Venezuela</title>
+  <meta name="theme-color" content="#0b3d2e">
+  <style>
+    :root {
+      --bg: #0b3d2e; --card: #113f3e; --accent: #ffd166; --text: #e8f7f1; --muted: #a8c8bf;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; background: var(--bg); color: var(--text); }
+    header { padding: 16px; background: #0a2f25; border-bottom: 1px solid #0f4a39; position: sticky; top: 0; z-index: 10; }
+    h1 { font-size: 18px; margin: 0; }
+    main { padding: 16px; max-width: 900px; margin: 0 auto; }
+    .grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
+    @media (min-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+    .card { background: var(--card); border: 1px solid #15534c; border-radius: 12px; padding: 12px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    label { font-weight: 600; color: var(--muted); }
+    input, select, button { font: inherit; border-radius: 10px; border: 1px solid #1a5f53; padding: 10px 12px; background: #0e3c34; color: var(--text); }
+    button { cursor: pointer; }
+    button.primary { background: var(--accent); color: #13251f; border-color: #e1b44d; font-weight: 700; }
+    button.ghost { background: transparent; border-color: #236a5f; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #14493f; border: 1px solid #1e6a5d; color: var(--muted); font-size: 12px; }
+    .big { font-size: 24px; font-weight: 800; letter-spacing: 0.2px; }
+    .muted { color: var(--muted); }
+    .stack { display: grid; gap: 10px; }
+    .hiddenWord { display: grid; place-items: center; min-height: 140px; border: 1px dashed #2a7a6d; border-radius: 12px; background: #0f4037; }
+    .word { font-size: 28px; font-weight: 800; }
+    .role { font-size: 14px; font-weight: 700; color: #ffd166; }
+    .timer { font-size: 36px; font-weight: 900; }
+    .list { max-height: 220px; overflow: auto; border: 1px solid #1a5f53; border-radius: 10px; padding: 8px; background: #0e3c34; }
+    .list li { padding: 6px 0; border-bottom: 1px dashed #1a5f53; }
+    .list li:last-child { border-bottom: 0; }
+    footer { padding: 14px; text-align: center; color: var(--muted); }
+    .ok { color: #8ce08c; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Impostor Venezuela • 7 jugadores • 2 impostores</h1>
+  </header>
+  <main>
+    <section class="grid">
+      <div class="card stack">
+        <div class="row">
+          <label for="players">Jugadores</label>
+          <select id="players">
+            <option>7</option>
+            <option>6</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
+          </select>
+          <label for="impostors">Impostores</label>
+          <select id="impostors">
+            <option>2</option>
+            <option>1</option>
+            <option>3</option>
+          </select>
+          <label for="roundSelect">Ronda</label>
+          <select id="roundSelect"></select>
+          <button class="primary" id="newGame">Nueva partida</button>
+        </div>
+        <div class="row">
+          <span class="pill" id="status">Sin iniciar</span>
+          <span class="pill" id="categoryPill">Categoría: —</span>
+        </div>
+
+        <div class="card stack">
+          <div class="row">
+            <label>Revelación privada</label>
+            <span class="muted">Pasa el teléfono y cada jugador toca para ver su palabra.</span>
+          </div>
+          <div id="revealPanel" class="hiddenWord">
+            <div class="stack" style="text-align:center">
+              <div class="role" id="roleText">Jugador 1</div>
+              <div class="word" id="secretWord">Toca para revelar</div>
+              <div class="row" style="justify-content:center; gap:12px; margin-top:8px;">
+                <button id="revealBtn" class="primary">Tocar para ver</button>
+                <button id="hideBtn" class="ghost" disabled>Ocultar</button>
+                <button id="nextPlayerBtn" class="ghost" disabled>Siguiente jugador</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <button id="startTimer" class="primary">Iniciar temporizador 3:00</button>
+          <button id="stopTimer" class="ghost" disabled>Detener</button>
+          <div class="timer" id="timer">03:00</div>
+        </div>
+
+        <div class="row">
+          <button id="nextRound" class="primary">Siguiente ronda</button>
+          <button id="shuffleRound" class="ghost">Ronda aleatoria</button>
+          <button id="exportLog" class="ghost">Exportar historial</button>
+        </div>
+      </div>
+
+      <div class="card stack">
+        <div class="row">
+          <label>Palabras de la ronda</label>
+          <span class="muted">Los inocentes ven “Inocentes”; los impostores ven “Impostores”.</span>
+        </div>
+        <div class="stack">
+          <div><span class="pill">Categoría</span> <span class="big" id="catLabel">—</span></div>
+          <div class="row">
+            <div class="card" style="flex:1;">
+              <div class="muted">Inocentes</div>
+              <div class="word" id="innocentWord">—</div>
+            </div>
+            <div class="card" style="flex:1;">
+              <div class="muted">Impostores</div>
+              <div class="word" id="impostorWord">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stack">
+          <label>Historial</label>
+          <ul class="list" id="logList"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>Hecho para debates sabrosos con sabor a Venezuela. <span class="ok">¡A jugar!</span></footer>
+
+  <script>
+    // Estado de juego
+    const state = {
+      players: 7,
+      impostors: 2,
+      roles: [],         // true = impostor, false = inocente
+      currentRound: 0,
+      revealedFor: 0,    // índice de jugador viendo su palabra
+      timerId: null,
+      remaining: 180000, // 3 min
+      log: []
+    };
+
+    // Dataset: 60 rondas (categoría, inocentes, impostores) => 120 palabras
+    const ROUNDS = [
+      {cat:"Comida típica", i:"Arepa", m:"Cachapa"},
+      {cat:"Bebidas", i:"Malta", m:"Chicha"},
+      {cat:"Dulces", i:"Dulce de lechosa", m:"Conserva de coco"},
+      {cat:"Salsas", i:"Guasacaca", m:"Mojo de ajo"},
+      {cat:"Desayuno", i:"Perico", m:"Caraotas"},
+      {cat:"Platos regionales", i:"Hallaca", m:"Pastel de chucho"},
+      {cat:"Panadería", i:"Pan de jamón", m:"Golfeado"},
+      {cat:"Mar", i:"Cazón", m:"Róbalo"},
+      {cat:"Quesos", i:"Queso telita", m:"Queso de mano"},
+      {cat:"Cortes populares", i:"Punta trasera", m:"Muchacho redondo"},
+
+      {cat:"Ciudades", i:"Caracas", m:"Valencia"},
+      {cat:"Ciudades", i:"Maracaibo", m:"Barquisimeto"},
+      {cat:"Ciudades", i:"Mérida", m:"San Cristóbal"},
+      {cat:"Islas", i:"Margarita", m:"Coche"},
+      {cat:"Pueblos costeros", i:"Choroní", m:"Tucacas"},
+      {cat:"Parques", i:"El Ávila", m:"Mochima"},
+      {cat:"Montañas", i:"Roraima", m:"Sierra Nevada"},
+      {cat:"Llanos", i:"Calabozo", m:"Acarigua"},
+      {cat:"Oriente", i:"Cumaná", m:"Maturín"},
+      {cat:"Guayana", i:"Ciudad Guayana", m:"Upata"},
+
+      {cat:"Playas", i:"Playa El Agua", m:"San Luis"},
+      {cat:"Playas", i:"Los Roques", m:"Morrocoy"},
+      {cat:"Playas", i:"Patillal", m:"La Restinga"},
+      {cat:"Ríos", i:"Orinoco", m:"Caroní"},
+      {cat:"Saltos", i:"Salto Ángel", m:"Parakupá"},
+      {cat:"Lagunas", i:"Laguna de Urao", m:"Laguna de Tacarigua"},
+      {cat:"Cuevas", i:"Cueva del Guácharo", m:"Cuevas de la Hacienda"},
+      {cat:"Desiertos", i:"Medanos de Coro", m:"Médanos de la Soledad"},
+      {cat:"Represas", i:"Guri", m:"Camatagua"},
+      {cat:"Parques urbanos", i:"Parque del Este", m:"Parque La Llovizna"},
+
+      {cat:"Música", i:"Joropo", m:"Gaita"},
+      {cat:"Música", i:"Salsa cabilla", m:"Merengue caraqueño"},
+      {cat:"Instrumentos", i:"Cuatro", m:"Arpa llanera"},
+      {cat:"Baile", i:"Tamunangue", m:"Calipso"},
+      {cat:"Festividades", i:"Feria de la Chinita", m:"Carnaval de El Callao"},
+      {cat:"Tradiciones", i:"Parranda de San Pedro", m:"Diablos de Yare"},
+      {cat:"Teatro", i:"Rajatabla", m:"Teresa Carreño"},
+      {cat:"Cine", i:"Papita, maní, tostón", m:"Secuestro Express"},
+      {cat:"Literatura", i:"Doña Bárbara", m:"Cantaclaro"},
+      {cat:"Arte", i:"Cromointerferencia", m:"Cinética de Soto"},
+
+      {cat:"Personajes", i:"Simón Bolívar", m:"Francisco de Miranda"},
+      {cat:"Personajes", i:"José Antonio Páez", m:"Antonio José de Sucre"},
+      {cat:"Personajes", i:"Andrés Bello", m:"Rómulo Gallegos"},
+      {cat:"Deportes", i:"Omar Vizquel", m:"Juan Arango"},
+      {cat:"Célebres", i:"Arturo Uslar Pietri", m:"Teresa Carreño"},
+      {cat:"Ciencia", i:"Baruj Benacerraf", m:"Humberto Fernández-Morán"},
+      {cat:"Televisión", i:"Renny Ottolina", m:"Amador Bendayán"},
+      {cat:"Activismo", i:"Arístides Bastidas", m:"José Gregorio Hernández"},
+      {cat:"Humor", i:"Laureano Márquez", m:"Emilio Lovera"},
+      {cat:"Cocina", i:"Sumito Estévez", m:"Edgar Leal"},
+
+      {cat:"Fauna", i:"Turpial", m:"Cardenalito"},
+      {cat:"Fauna", i:"Delfín del Orinoco", m:"Manatí"},
+      {cat:"Fauna", i:"Caimán del Orinoco", m:"Morrocoy"},
+      {cat:"Aves", i:"Guacharaca", m:"Flamenco"},
+      {cat:"Aves", i:"Guanaguanare", m:"Tucán"},
+      {cat:"Flora", i:"Araguaney", m:"Sarrapia"},
+      {cat:"Flora", i:"Samán", m:"Apamate"},
+      {cat:"Cultivos", i:"Cacao", m:"Café"},
+      {cat:"Cultivos", i:"Yuca", m:"Maíz"},
+      {cat:"Pesca", i:"Camarón", m:"Parguito"},
+
+      {cat:"Habla criolla", i:"Pana", m:"Chamo"},
+      {cat:"Habla criolla", i:"Conchale", m:"Arrechísimo"},
+      {cat:"Habla criolla", i:"Fino", m:"De pinga"},
+      {cat:"Comida callejera", i:"Pepito", m:"Hamburguesa al carbón"},
+      {cat:"Comida callejera", i:"Tequeños", m:"Empanadas"},
+      {cat:"Postres", i:"Quesillo", m:"Torta tres leches"},
+      {cat:"Despojo", i:"Mondongo", m:"Sancocho"},
+      {cat:"Mercados", i:"Quinta Crespo", m:"Mercado de Chacao"},
+      {cat:"Transporte", i:"Metro de Caracas", m:"Metrobús"},
+      {cat:"Iconos urbanos", i:"Puente sobre el Lago", m:"Teleférico de Mérida"}
+    ];
+
+    // Inicializar ronda selector
+    const roundSelect = document.getElementById('roundSelect');
+    ROUNDS.forEach((r, idx) => {
+      const opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = `${idx+1}. ${r.cat} — ${r.i} / ${r.m}`;
+      roundSelect.appendChild(opt);
+    });
+
+    // Utilidad
+    const $ = id => document.getElementById(id);
+    function sampleRoles(players, impostors) {
+      const arr = Array(players).fill(false);
+      let picks = 0;
+      while (picks < impostors) {
+        const i = Math.floor(Math.random() * players);
+        if (!arr[i]) { arr[i] = true; picks++; }
+      }
+      return arr;
+    }
+    function formatMs(ms) {
+      const m = Math.floor(ms / 60000);
+      const s = Math.floor((ms % 60000) / 1000);
+      return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
+    // UI refs
+    const playersSel = $('players');
+    const impostorsSel = $('impostors');
+    const statusPill = $('status');
+    const categoryPill = $('categoryPill');
+    const catLabel = $('catLabel');
+    const innocentWord = $('innocentWord');
+    const impostorWord = $('impostorWord');
+
+    const roleText = $('roleText');
+    const secretWord = $('secretWord');
+    const revealBtn = $('revealBtn');
+    const hideBtn = $('hideBtn');
+    const nextPlayerBtn = $('nextPlayerBtn');
+
+    const newGameBtn = $('newGame');
+    const nextRoundBtn = $('nextRound');
+    const shuffleRoundBtn = $('shuffleRound');
+
+    const startTimerBtn = $('startTimer');
+    const stopTimerBtn = $('stopTimer');
+    const timerEl = $('timer');
+    const logList = $('logList');
+    const exportLogBtn = $('exportLog');
+
+    function setRound(idx) {
+      state.currentRound = idx;
+      const r = ROUNDS[idx];
+      catLabel.textContent = r.cat;
+      innocentWord.textContent = r.i;
+      impostorWord.textContent = r.m;
+      categoryPill.textContent = `Categoría: ${r.cat}`;
+      addLog(`Ronda ${idx+1}: ${r.cat} • Inocentes=${r.i} • Impostores=${r.m}`);
+    }
+
+    function addLog(text) {
+      const li = document.createElement('li');
+      li.textContent = `${new Date().toLocaleTimeString()} — ${text}`;
+      logList.prepend(li);
+      state.log.push(li.textContent);
+    }
+
+    function newGame() {
+      state.players = parseInt(playersSel.value, 10);
+      state.impostors = parseInt(impostorsSel.value, 10);
+      state.roles = sampleRoles(state.players, state.impostors);
+      state.revealedFor = 0;
+      statusPill.textContent = `Jugadores: ${state.players} • Impostores: ${state.impostors}`;
+      statusPill.style.background = '#14493f';
+      roleText.textContent = `Jugador ${state.revealedFor+1}`;
+      secretWord.textContent = 'Toca para revelar';
+      revealBtn.disabled = false;
+      hideBtn.disabled = true;
+      nextPlayerBtn.disabled = true;
+      addLog(`Nueva partida: ${state.players} jugadores, ${state.impostors} impostores (roles asignados)`);
+    }
+
+    function reveal() {
+      const isImp = state.roles[state.revealedFor];
+      const r = ROUNDS[state.currentRound];
+      secretWord.textContent = isImp ? r.m : r.i;
+      roleText.textContent = `Jugador ${state.revealedFor+1} • ${isImp ? 'Impostor' : 'Inocente'}`;
+      revealBtn.disabled = true;
+      hideBtn.disabled = false;
+      nextPlayerBtn.disabled = true;
+    }
+
+    function hide() {
+      secretWord.textContent = 'Oculto. Pasa el teléfono.';
+      hideBtn.disabled = true;
+      nextPlayerBtn.disabled = false;
+    }
+
+    function nextPlayer() {
+      state.revealedFor++;
+      if (state.revealedFor >= state.players) {
+        roleText.textContent = `Todos listos. ¡A debatir!`;
+        secretWord.textContent = 'Usa el temporizador y ¡que gane el mejor!';
+        revealBtn.disabled = true;
+        hideBtn.disabled = true;
+        nextPlayerBtn.disabled = true;
+        addLog('Todos los jugadores vieron su palabra.');
+      } else {
+        roleText.textContent = `Jugador ${state.revealedFor+1}`;
+        secretWord.textContent = 'Toca para revelar';
+        revealBtn.disabled = false;
+        hideBtn.disabled = true;
+        nextPlayerBtn.disabled = true;
+      }
+    }
+
+    function startTimer() {
+      clearInterval(state.timerId);
+      state.remaining = 180000;
+      timerEl.textContent = formatMs(state.remaining);
+      stopTimerBtn.disabled = false;
+      startTimerBtn.disabled = true;
+      state.timerId = setInterval(() => {
+        state.remaining -= 1000;
+        timerEl.textContent = formatMs(state.remaining);
+        if (state.remaining <= 0) {
+          clearInterval(state.timerId);
+          timerEl.textContent = '00:00';
+          startTimerBtn.disabled = false;
+          stopTimerBtn.disabled = true;
+          addLog('Temporizador finalizado.');
+        }
+      }, 1000);
+      addLog('Temporizador iniciado: 3 minutos.');
+    }
+
+    function stopTimer() {
+      clearInterval(state.timerId);
+      startTimerBtn.disabled = false;
+      stopTimerBtn.disabled = true;
+      addLog(`Temporizador detenido en ${timerEl.textContent}.`);
+    }
+
+    function nextRound() {
+      const next = (state.currentRound + 1) % ROUNDS.length;
+      setRound(next);
+      newGame();
+    }
+
+    function shuffleRound() {
+      const idx = Math.floor(Math.random() * ROUNDS.length);
+      roundSelect.value = idx;
+      setRound(idx);
+      newGame();
+    }
+
+    function exportLog() {
+      const blob = new Blob([state.log.join('\n')], {type:'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'historial_impostor_venezuela.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Eventos
+    newGameBtn.addEventListener('click', newGame);
+    revealBtn.addEventListener('click', reveal);
+    hideBtn.addEventListener('click', hide);
+    nextPlayerBtn.addEventListener('click', nextPlayer);
+    startTimerBtn.addEventListener('click', startTimer);
+    stopTimerBtn.addEventListener('click', stopTimer);
+    nextRoundBtn.addEventListener('click', nextRound);
+    shuffleRoundBtn.addEventListener('click', shuffleRound);
+    exportLogBtn.addEventListener('click', exportLog);
+    roundSelect.addEventListener('change', (e) => setRound(parseInt(e.target.value,10)));
+
+    // Boot
+    setRound(0);
+    newGame();
+  </script>
+</body>
+</html>

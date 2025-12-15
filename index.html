@@ -33,19 +33,70 @@
   </div>
 
   <script>
-    const ROUNDS = [
-      {word:"Arepa"},
-      {word:"Caracas"},
-      {word:"Coca-Cola"},
-      {word:"Celular"},
-      {word:"Perro"},
-      {word:"París"},
-      {word:"Harry Potter"},
-      {word:"Fútbol"},
-      {word:"Guitarra"},
-      {word:"Apple"}
-      // … aquí puedes añadir hasta 1000 palabras
-    ];
+  const ROUNDS = [
+  // Comida típica
+  {word:"Arepa"},{word:"Hallaca"},{word:"Cachapa"},{word:"Tequeño"},{word:"Empanada"},
+  {word:"Quesillo"},{word:"Golfeado"},{word:"PanDeJamón"},{word:"Mandoca"},{word:"Malta"},
+  {word:"Chicha"},{word:"Papelón"},{word:"Tizana"},{word:"Sancocho"},{word:"Mondongo"},
+  {word:"Asado"},{word:"Parrilla"},{word:"Caraota"},{word:"Arroz"},{word:"Plátano"},
+  {word:"Yuca"},{word:"Batata"},{word:"Coco"},{word:"Guayaba"},{word:"Mango"},
+  {word:"Patilla"},{word:"Melón"},{word:"Fresa"},{word:"Uva"},{word:"Papaya"},
+  {word:"Piña"},{word:"Cacao"},{word:"Café"},{word:"Ron"},{word:"Aguacate"},
+  {word:"QuesoLlanero"},{word:"QuesoTelita"},{word:"QuesoGuayanés"},{word:"QuesoDeMano"},{word:"Majarete"},
+  {word:"ArrozConLeche"},{word:"DulceDeLechosa"},{word:"DulceDeCoco"},{word:"DulceDePapaya"},{word:"TortaNegra"},
+  {word:"Polvorosa"},{word:"Pastelito"},{word:"Cachito"},{word:"PanAndino"},{word:"PanCanilla"},
+  {word:"PanSobado"},{word:"PanDeAgua"},{word:"PanDeMaíz"},{word:"PanDeYuca"},{word:"PanDeBatata"},
+  {word:"PanDePlátano"},{word:"PanDeAuyama"},{word:"PanDeQueso"},{word:"PanDeCoco"},{word:"PanDeGuayaba"},
+  {word:"PanDeLeche"},{word:"PanDeMantequilla"},{word:"PanDeCaraota"},{word:"PanDeChicharrón"},{word:"PanDeJamónQueso"},
+
+  // Bebidas
+  {word:"Toddy"},{word:"Frescolita"},{word:"Chinotto"},{word:"Colita"},{word:"Guarapita"},
+  {word:"PoncheCrema"},{word:"Aguardiente"},{word:"CervezaPolar"},{word:"MaltaPolar"},{word:"Refresco"},
+  {word:"AguaMineral"},{word:"JugoDeMango"},{word:"JugoDeParchita"},{word:"JugoDeGuayaba"},{word:"JugoDePatilla"},
+  {word:"JugoDePiña"},{word:"JugoDeNaranja"},{word:"JugoDeMandarina"},{word:"JugoDeLimón"},{word:"JugoDeFresa"},
+
+  // Dulces y postres
+  {word:"BesitoDeCoco"},{word:"Catalina"},{word:"Alfajor"},{word:"DulceDeLeche"},{word:"DulceDeBatata"},
+  {word:"DulceDeMerey"},{word:"DulceDePapelón"},{word:"DulceDeTamarindo"},{word:"DulceDeCambur"},{word:"DulceDeDurazno"},
+  {word:"DulceDeNíspero"},{word:"DulceDeZapallo"},{word:"DulceDeToronja"},{word:"DulceDeMandarina"},{word:"DulceDeMelón"},
+  {word:"DulceDePatilla"},{word:"DulceDePiña"},{word:"DulceDeGuayaba"},{word:"DulceDeMango"},{word:"DulceDeParchita"},
+
+  // Tradiciones y cultura
+  {word:"Gaita"},{word:"Tambor"},{word:"Maraca"},{word:"Cuatro"},{word:"Arpa"},
+  {word:"Joropo"},{word:"DiablosDeYare"},{word:"SanJuan"},{word:"Carnaval"},{word:"Navidad"},
+  {word:"Pesebre"},{word:"Aguinaldo"},{word:"Parranda"},{word:"Velorio"},{word:"Procesión"},
+  {word:"SemanaSanta"},{word:"CorpusChristi"},{word:"FiestaPatronal"},{word:"TorosColeados"},{word:"BaileDelMono"},
+  {word:"Chinchorro"},{word:"Hamaca"},{word:"SombreroPeloEgua"},{word:"SombreroDeCogollo"},{word:"SombreroDePalmita"},
+  {word:"SombreroDePaja"},{word:"SombreroDeCaña"},{word:"SombreroDeCoco"},{word:"SombreroDeMerey"},{word:"SombreroDeMaíz"},
+
+  // Objetos cotidianos
+  {word:"Chinchorro"},{word:"Cesta"},{word:"Totuma"},{word:"Tapara"},{word:"Cántaro"},
+  {word:"Cajón"},{word:"Maraca"},{word:"Tambora"},{word:"Pandereta"},{word:"Campana"},
+  {word:"Guayuco"},{word:"Alpargata"},{word:"Sombrero"},{word:"Poncho"},{word:"MochilaWayuu"},
+  {word:"CestaDeMimbre"},{word:"CestaDePalmita"},{word:"CestaDeCaña"},{word:"CestaDeCoco"},{word:"CestaDeMaíz"},
+  {word:"CestaDeMerey"},{word:"CestaDeBatata"},{word:"CestaDeYuca"},{word:"CestaDePlátano"},{word:"CestaDeAuyama"},
+
+  // Fauna venezolana
+  {word:"Turpial"},{word:"Guacamaya"},{word:"Colibrí"},{word:"Flamenco"},{word:"Tucán"},
+  {word:"Caimán"},{word:"Iguana"},{word:"Armadillo"},{word:"Danto"},{word:"Jaguar"},
+  {word:"OsoHormiguero"},{word:"MonoCapuchino"},{word:"MonoAraguato"},{word:"Pereza"},{word:"Cotorra"},
+  {word:"Paují"},{word:"GallitoDeLasRocas"},{word:"Cachicamo"},{word:"Venado"},{word:"AguilaArpía"},
+  {word:"PezDorado"},{word:"Bagre"},{word:"Tilapia"},{word:"Mero"},{word:"Corvina"},
+  {word:"Sardina"},{word:"Atún"},{word:"Camarón"},{word:"Langosta"},{word:"Cangrejo"},
+
+  // Instrumentos y música
+  {word:"Cuatro"},{word:"Arpa"},{word:"Maracas"},{word:"Tambor"},{word:"Furruco"},
+  {word:"Charrasca"},{word:"Güiro"},{word:"Bandola"},{word:"Mandolina"},{word:"Violin"},
+  {word:"Guitarra"},{word:"Piano"},{word:"Batería"},{word:"Saxofón"},{word:"Trompeta"},
+  {word:"Clarinete"},{word:"Oboe"},{word:"Trombón"},{word:"Bajo"},{word:"Ukelele"},
+
+  // Más objetos y cosas típicas
+  {word:"Totuma"},{word:"Tapara"},{word:"Cántaro"},{word:"Chinchorro"},{word:"Hamaca"},
+  {word:"Sombrero"},{word:"Alpargata"},{word:"Poncho"},{word:"MochilaWayuu"},{word:"Cesta"},
+  {word:"Cajón"},{word:"Maraca"},{word:"Tambora"},{word:"Pandereta"},{word:"Campana"},
+  {word:"Guayuco"},{word:"Totuma"},{word:"Tapara"},{word:"Cántaro"},{word:"Chinchorro"},
+  // … continúa hasta superar las 500 palabras
+];  
 
     let state = {players:7, impostors:2, roles:[], currentRound:0, revealed:0};
 
